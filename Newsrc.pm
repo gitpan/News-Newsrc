@@ -9,7 +9,7 @@ use strict;
 use integer;
 use Set::IntSpan 1.04;
 
-$News::Newsrc::VERSION = 1.04;
+$News::Newsrc::VERSION = 1.05;
 $Set::IntSpan::Empty_String = '';
 
 
@@ -177,6 +177,15 @@ sub move_group
 }
 
 
+sub Splice(\@$$@)
+{
+    my($array, $offset, $length, @list) = @_;
+
+    $offset < -@$array and $offset = -@$array;
+    splice @$array, $offset, $length, @list;
+}
+
+
 sub _insert
 {
     my($newsrc, $group, %options) = @_;
@@ -195,7 +204,7 @@ sub _insert
 	/alpha/  and Alpha   ($list, $group);
 	/before/ and Before  ($list, $group, $arg);
 	/after/  and After   ($list, $group, $arg);
-	/number/ and splice  @$list, $arg, 0, $group;
+	/number/ and Splice  @$list, $arg, 0, $group;
     }
 }
 

@@ -136,12 +136,12 @@ sub test_save_load
     print "#save_load\n";
     my $rc = new News::Newsrc;
 
-    write_file('newsrc', '');
-    $rc->load('newsrc');
+    write_file('t/newsrc', '');
+    $rc->load('t/newsrc');
     unlink @Test_files;
     $rc->save();
 
-    my $result = defined -e 'newsrc' ? 1 : 0;
+    my $result = defined -e 't/newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 }
@@ -153,14 +153,14 @@ sub test_save_as
     my $rc = new News::Newsrc;
 
     unlink @Test_files;
-    $rc->save_as('newsrc');
-    my $result = defined -e 'newsrc' ? 1 : 0;
+    $rc->save_as('t/newsrc');
+    my $result = defined -e 't/newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 
     unlink @Test_files;
     $rc->save();
-    $result = defined -e 'newsrc' ? 1 : 0;
+    $result = defined -e 't/newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 }
