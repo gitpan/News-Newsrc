@@ -1,4 +1,11 @@
-Revision history for Perl extension News::Newsrc.
+Revision history for Perl extension News::Newsrc
+
+1.03  Mon March 31 12:00:00 1997
+	- preserve newsgroup order
+	- added move_group()
+	- added %options to methods
+	- added num_groups()
+	- added get_articles() and set_articles()
 
 1.02  Mon Aug 26 12:00:00 1996
 	- ignore blank lines in newsrc files
@@ -11,6 +18,6 @@ Revision history for Perl extension News::Newsrc.
 	- made Newsrc an Exporter
 	- documentation fixes
 
-0.01  Tue Jul  9 12:45:05 1996
-	- original version; created by h2xs 1.16
+0.01  Mon Jan 29 12:45:05 1996
+	- original version
 

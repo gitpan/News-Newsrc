@@ -3,4 +3,5 @@ MANIFEST
 Makefile.PL
 Newsrc.pm
 README
-t/newsrc.t
+t/Newsrc.t
+t/fodder

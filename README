@@ -1,4 +1,4 @@
-News::Newsrc VERSION 1.02 - manage newsrc files
+News::Newsrc VERSION 1.03 - manage newsrc files
 
 DESCRIPTION
 News::Newsrc manages newsrc files, of the style
@@ -9,6 +9,7 @@ News::Newsrc manages newsrc files, of the style
 Methods are provided for
 - reading and writing newsrc files
 - adding and removing newsgroups
+- changing the order of newsgroups
 - subscribing and unsubscribing from newsgroups
 - testing whether groups exist and are subscribed
 - marking and unmarking articles
@@ -17,14 +18,14 @@ Methods are provided for
 - returning lists of articles
 
 COPYRIGHT
-Copyright (c) 1996 Steven McDougall.  All rights reserved.  This
+Copyright (c) 1996, 1997 Steven McDougall.  All rights reserved.  This
 module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 PREREQUISITES
-Perl5.002
+Perl5.003
 Exporter
-Set::IntSpan 1.01
+Set::IntSpan 1.03
 
 HOW TO BUILD AND INSTALL
 perl Makefile.PL
@@ -34,4 +35,5 @@ make install
 
 TODO
 Nothing planned.  
-Send suggestions, bugs, etc. to swm@cric.com
+Send suggestions, bugs, etc. to swmcd@world.std.com
+
