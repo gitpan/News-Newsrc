@@ -8,7 +8,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN {print "1..116\n";}
+BEGIN {print "1..120\n";}
 END {print "not ok 1\n" unless $loaded;}
 use News::Newsrc;
 $loaded = 1;
@@ -37,6 +37,8 @@ test_save        ();
 test_save_bak    ();
 test_save_load   ();
 test_save_as     ();
+test_import      ();
+test_export      ();
 test_groups      ();
 test_subscription();
 test_where       ();
@@ -55,7 +57,7 @@ sub test_load
 {
     print "#load\n";
 
-    my @test = (["t/.newsrc", "a: 1,3\n\n", ""          , 1 , "a: 1,3\n" ],
+    my @test = (["t/.newsrc", "a: 1,3\n\n", ""            , 1 , "a: 1,3\n" ],
 		["t/newsrc" , "b! 1-10\n ", "t/newsrc"    , 1 , "b! 1-10\n"],
 		[""         , ""          , "t/newsrc.bak", "", ""         ]);
 
@@ -80,8 +82,8 @@ sub test_load_errs
 {
     print "#load errors\n";
 
-    my @test = ([ 't/.newsrc', 'a'      , 'newsrc' ],
-		[ 't/.newsrc', 'a: 10-1', 'article']);
+    my @test = ([ 't/.newsrc', 'a'      , 'Bad newsrc line' ],
+		[ 't/.newsrc', 'a: 10-1', 'Bad article list']);
 
     my $t;
     my $rc = new News::Newsrc;
@@ -92,7 +94,8 @@ sub test_load_errs
 	my($file, $contents, $error) = @$t;
 	write_file($file, $contents);
 	my $return = eval { $rc->load() };
-	printf("#%-12s %-10s -> %s", "load", $contents, $@);
+	printf("#%-12s %-10s -> %s %s", 
+	       "load", $contents, defined $return ? 't' : 'f', $@);
 	not $return and $@ =~ /$error/ or Not; OK;
     }
 }
@@ -163,6 +166,47 @@ sub test_save_as
     $result = defined -e 't/newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
+}
+
+
+sub test_import
+{
+    print "#import\n";
+
+    my $lines = <<LINES;
+a: 1,3
+b! 1-10
+c: 1,3,5,9-9000
+LINES
+    my @lines = split /\n/, $lines;
+    my $rc = new News::Newsrc;
+
+    $rc->import_rc(@lines);
+    $rc->_dump eq $lines or Not; OK;
+
+    $rc->import_rc(\@lines);
+    $rc->_dump eq $lines or Not; OK;
+}
+
+
+sub test_export
+{
+    print "#export\n";
+
+    my $contents = <<CONTENTS;
+a: 1,3
+b! 1-10
+c: 1,3,5,9-9000
+CONTENTS
+
+    my $rc = new News::Newsrc;
+    $rc->_scan($contents);
+
+    my @lines = $rc->export_rc;
+    join('',  @lines) eq $contents or Not; OK;
+
+    my $lines = $rc->export_rc;
+    join('', @$lines) eq $contents or Not; OK;
 }
 
 

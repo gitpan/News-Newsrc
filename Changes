@@ -1,5 +1,10 @@
 Revision history for Perl extension News::Newsrc
 
+1.07  1998 Dec 21
+	- added imort_rc and export_rc
+	- added VERSION_FROM, DISTNAME, ABSTRACT, AUTHOR, and dist 
+          keys in Makefile.PL
+
 1.06  Mon Jan 5 1998
 	- runs clean under Windows NT
 

@@ -1,7 +1,11 @@
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
-WriteMakefile(
-    'NAME'	=> 'News::Newsrc',
-    'VERSION_FROM' => 'Newsrc.pm', # finds $VERSION
-);
+
+WriteMakefile(NAME	   => 'News::Newsrc',
+	      VERSION_FROM => 'Newsrc.pm',      # finds $VERSION
+	      DISTNAME     => 'News-Newsrc',
+	      ($] >= 5.005 ?
+	       (ABSTRACT   => 'Manages newsrc files',
+		AUTHOR     => 'Steven McDougall (swmcd@world.std.com)') : ()),
+	      dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'}
+	      );
+
