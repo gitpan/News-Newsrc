@@ -1,25 +1,26 @@
-# Copyright 1996-1998 by Steven McDougall. This module is free
-# software; you can redistribute it and/or modify it under the same
-# terms as Perl itself.
-
-package News::Newsrc;
-
-use 5.004;
+use 5.6.0;
 use strict;
 use integer;
 use Set::IntSpan 1.07;
 
-$News::Newsrc::VERSION = 1.07;
+package News::Newsrc;
+
+$News::Newsrc::VERSION      = 1.08;
 $Set::IntSpan::Empty_String = '';
 
 
 sub new
 {
-    my $class = shift;
-    my $newsrc = { group => { },
-		   list  => [ ] };
+    my ($class, $file) = @_;
 
-    bless $newsrc, $class
+    my $newsrc = { group => {}, 
+		   list  => [] };
+
+    bless $newsrc, ref $class || $class;
+
+    $newsrc->load($file) or die "Can't load $file: $!\n" if $file;
+
+    return $newsrc;
 }
 
 
@@ -491,9 +492,10 @@ News::Newsrc - manage newsrc files
   use News::Newsrc;
   
   $newsrc   = new News::Newsrc;
+  $newsrc   = new News::Newsrc $file;
         
   $ok       = $newsrc->load;
-  $ok       = $newsrc->load             ($file);
+  $ok       = $newsrc->load             ( $file);
               $newsrc->import_rc        ( @lines);
               $newsrc->import_rc        (\@lines);
         
@@ -534,7 +536,7 @@ News::Newsrc - manage newsrc files
 
 =head1 REQUIRES
 
-Perl 5.004, Set::IntSpan 1.07
+Perl 5.6.0, Set::IntSpan 1.07
 
 
 =head1 EXPORTS
@@ -689,8 +691,13 @@ Negative indices count backwards from the end of the list.
 
 =item I<$newsrc> = C<new> C<News::Newsrc>
 
-Creates and returns a C<News::Newsrc> object.
-The object contains no newsgroups.
+=item I<$newsrc> = C<new> C<News::Newsrc> I<$file>
+
+Creates and returns a C<News::Newsrc> object. 
+
+If I<$file> is specified, 
+C<new> loads the newsgroups in I<$file> into the object.
+If the load fails, C<new> C<die>s.
 
 
 =item I<$ok> = I<$newsrc>->C<load>
@@ -1043,6 +1050,65 @@ It's reasonably short and somewhat mnemonic
 I added the same suffix to C<export> for symmetry.
 
 
+=head1 ACKNOWLEDGMENTS
+
+=over 4
+
+=item *
+
+Neil Bowers <neilb@cre.canon.co.uk>
+
+=item *
+
+Matthew Darwin <matthew@davin.ottawa.on.ca>
+
+=item *
+
+Philip Hallstrom <philip.hallstrom@cendantsoft.com>
+
+=item *
+
+M. Hedlund <hedlund@best.com>
+
+=item *
+
+Bruce J. Keeler <bruce@gridpoint.com>
+
+=item *
+
+Chris Leach <Chris.Leach@epa.ericsson.se>
+
+=item *
+
+Abhijit Menon-Sen <ams@wiw.org>
+
+=item *
+
+J.B. Nicholson-Owens <jbn@pop-a-wheelie.midwest.net>
+
+=item *
+
+Lars Balker Rasmussen <gnort@daimi.aau.dk>
+
+=item *
+
+Mike Stok <mike@stok.co.uk>
+
+=item *
+
+Bennett Todd <bet@onyx.interactive.net>
+
+=item *
+
+Larry W. Virden <lvirden@cas.org>
+
+=item *
+
+Chris Szurgot <szurgot@itribe.net>
+
+=back
+
+
 =head1 AUTHOR
 
 Steven McDougall, swmcd@world.std.com
@@ -1055,7 +1121,7 @@ perl(1), Set::IntSpan
 
 =head1 COPYRIGHT
 
-Copyright 1996-1998 by Steven McDougall. This module is free
+Copyright 1996-2001 by Steven McDougall. This module is free
 software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
 

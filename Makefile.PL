@@ -6,6 +6,7 @@ WriteMakefile(NAME	   => 'News::Newsrc',
 	      ($] >= 5.005 ?
 	       (ABSTRACT   => 'Manages newsrc files',
 		AUTHOR     => 'Steven McDougall (swmcd@world.std.com)') : ()),
-	      dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'}
+	      dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'},
+	      PREREQ_PM    => { Set::IntSpan => 1.07 },
 	      );
 

@@ -1,4 +1,4 @@
-News::Newsrc VERSION 1.07 - manage newsrc files
+News::Newsrc - manage newsrc files
 
 DESCRIPTION
 News::Newsrc manages newsrc files, of the style
@@ -17,13 +17,8 @@ Methods are provided for
 - returning lists of newsgroups
 - returning lists of articles
 
-COPYRIGHT
-Copyright 1996-1998 by Steven McDougall. This module is free software;
-you can redistribute it and/or modify it under the same terms as Perl
-itself.
-
 PREREQUISITES
-Perl5.004
+Perl5.6.0
 Set::IntSpan 1.07
 
 HOW TO BUILD AND INSTALL
@@ -36,3 +31,7 @@ TODO
 Nothing planned.  
 Send suggestions, bugs, etc. to swmcd@world.std.com
 
+COPYRIGHT
+Copyright 1996-2001 by Steven McDougall. This module is free software;
+you can redistribute it and/or modify it under the same terms as Perl
+itself.
