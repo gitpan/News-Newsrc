@@ -2,14 +2,24 @@
 # This module is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 
-package News::Newsrc;
+# $Id: Newsrc.pm,v 1.3 1996/02/22 20:08:26 swm Exp $
+
+# $Log: Newsrc.pm,v $
+# Revision 1.3  1996/02/22  20:08:26  swm
+# made Newsrc an Exporter
+# documentation fixes
+#
+
 require 5.001;
+package News::Newsrc;
+$News::Newsrc::VERSION = 1.01;
+
+require Exporter;
+@ISA = qw(Exporter);
+
 use strict;
-
-$News::Newsrc::VERSION = 1.00;
-
 use integer;
-use Set::IntSpan;
+use Set::IntSpan 1.01;
 
 =head1 NAME
 
@@ -40,11 +50,11 @@ News::Newsrc - manage newsrc files
     $newsrc->unmark      ($group,  $article);
     $newsrc->unmark_list ($group, \@articles);
     $newsrc->unmark_range($group, $from, $to);
-
+    
     ... if $newsrc->exists    ($group);
     ... if $newsrc->subscribed($group);
     ... if $newsrc->marked    ($group, $article);
-
+    
     @groups = $newsrc->groups();
     $groups = $newsrc->groups();
 
@@ -60,15 +70,15 @@ News::Newsrc - manage newsrc files
     @articles = $newsrc->unmarked_articles($group, $from, $to);
     $articles = $newsrc->unmarked_articles($group, $from, $to);
 
-=head1 EXPORTS
-
-None
-
 =head1 REQUIRES
 
 Perl 5.001
 
-Set::IntSpan
+Set::IntSpan 1.01
+
+=head1 EXPORTS
+
+None
 
 =head1 DESCRIPTION
 
@@ -128,7 +138,7 @@ Whitespace within a line is ignored.
 =item Group
 
 The I<group> is the name of the newsgroup.
-A group name may not contain colons (:) or exclaimation points (!).
+A group name may not contain colons (:) or exclamation points (!).
 Group names must be unique within a newsrc file.
 The group name is required.
 
@@ -205,7 +215,7 @@ $group will be created if it does not exist.
 
 =item unsubscribe($group)
 
-Unscribes from $group.  
+Unsubscribes from $group.  
 $group will be created if it does not exist.
 
 =item mark($group, $article)
@@ -267,12 +277,12 @@ In scalar context, returns an array reference.
 Returns the list of unsubscribed groups in a newsrc object.
 In scalar context, returns an array reference.
 
-=item marked($group)
+=item marked_articles($group)
 
 Returns the list of articles in the article list for $group.
 In scalar context, returns an array reference.
 
-=item unmarked($group, $from, $to)
+=item unmarked_articles($group, $from, $to)
 
 Returns the list of articles from $from to $to, inclusive,
 that do I<not> appear in the article list for $group.
@@ -317,7 +327,10 @@ modify it under the same terms as Perl itself.
 
 =cut
 
-    
+
+$Set::IntSpan::Empty_String = '';
+
+
 sub new
 {
     my $class = shift;
@@ -396,22 +409,12 @@ sub save_as
     for $group (sort keys %{$newsrc->{group}})
     {
 	my $sub = $newsrc->{group}{$group}{subscribed} ? ':' : '!';
-	my $articles = _run_list($newsrc->{group}{$group}{articles});
+	my $articles = $newsrc->{group}{$group}{articles}->run_list();
 	print NEWSRC "$group$sub $articles\n" or die "Can't write $file\n";
     }
 
     close NEWSRC;	
 }
-
-
-sub _run_list			# reformats the empty set as ''
-{
-    my $set = shift;
-    my $run_list = run_list $set;
-    $run_list =~ s/^-$//;
-    $run_list;
-}
-
 
 
 sub _dump	# Formats a Newsrc object to a string.  Used for testing
@@ -422,7 +425,7 @@ sub _dump	# Formats a Newsrc object to a string.  Used for testing
     for $group (sort keys %{$newsrc->{group}})
     {
 	my $sub = $newsrc->{group}{$group}{subscribed} ? ':' : '!';
-	my $articles = _run_list($newsrc->{group}{$group}{articles});
+	my $articles = $newsrc->{group}{$group}{articles}->run_list();
 	$dump .= "$group$sub $articles\n";
     }
 
@@ -587,6 +590,7 @@ sub unmarked_articles
 
 eval join('',<main::DATA>) or die $@ unless caller();
 
+1;
 __END__
 
 package main;
@@ -604,6 +608,8 @@ f!
 ';
 
 
+eval "no integer; $Set::IntSpan::VERSION > 1.00" or # don't ask...
+    die "Requires Set::Intspan 1.01 or greater\n";
 for (@ARGV) { /-v/ and $Verbose++ }
 e_files(@Test_files);
 $ENV{HOME} = '.';
