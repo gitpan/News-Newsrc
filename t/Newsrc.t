@@ -120,12 +120,12 @@ sub test_save_bak
     my $rc = new News::Newsrc;
 
     $rc->save();
-    my $result = -e 't/.newsrc.bak';
+    my $result = defined -e 't/.newsrc.bak' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result and Not; OK;
 
     $rc->save();
-    $result = -e 't/.newsrc.bak';
+    $result = defined -e 't/.newsrc.bak' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 }
@@ -141,7 +141,7 @@ sub test_save_load
     unlink @Test_files;
     $rc->save();
 
-    my $result = -e 'newsrc';
+    my $result = defined -e 'newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 }
@@ -154,13 +154,13 @@ sub test_save_as
 
     unlink @Test_files;
     $rc->save_as('newsrc');
-    my $result = -e 'newsrc';
+    my $result = defined -e 'newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 
     unlink @Test_files;
     $rc->save();
-    $result = -e 'newsrc';
+    $result = defined -e 'newsrc' ? 1 : 0;
     printf("#%-12s %-20s -> %d\n", "save", "", $result);
     $result or Not; OK;
 }
@@ -447,6 +447,8 @@ sub test_lists
 
 sub test_get_articles
 {
+    print "#get_articles\n";
+
     my $get = <<GET;
 c 20-21,33,38
 a 1-5
@@ -462,6 +464,7 @@ GET
     {
 	my($group, $expected) = (split, '');
 	my $result = $rc->get_articles($group);
+	print "#$group -> $result\n";
 	$result eq $expected or Not; OK;
     }
 }
@@ -469,6 +472,8 @@ GET
 
 sub test_set_articles
 {
+    print "#set_articles\n";
+
     my $set = <<SET;
 c
 a 1-5,81
@@ -485,15 +490,19 @@ SET
 	my($group, $expected) = (split, '');
 
 	my $ok = $rc->set_articles($group, $expected);
+	print "#$group -> $ok\n";
 	$ok or Not; OK;
 
 	my $result = $rc->get_articles($group);
+	print "#$group -> $result\n";
 	$result eq $expected or Not; OK;
 
 	$ok = $rc->set_articles($group, '----');
+	print "#$group -> $ok\n";
 	$ok and Not; OK;
 
-	my $result = $rc->get_articles($group);
+	$result = $rc->get_articles($group);
+	print "#$group -> $result\n";
 	$result eq $expected or Not; OK;
     }
 }

@@ -1,4 +1,4 @@
-News::Newsrc VERSION 1.03 - manage newsrc files
+News::Newsrc VERSION 1.04 - manage newsrc files
 
 DESCRIPTION
 News::Newsrc manages newsrc files, of the style
@@ -23,9 +23,8 @@ module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 PREREQUISITES
-Perl5.003
-Exporter
-Set::IntSpan 1.03
+Perl5.004
+Set::IntSpan 1.04
 
 HOW TO BUILD AND INSTALL
 perl Makefile.PL

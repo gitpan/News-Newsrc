@@ -4,16 +4,12 @@
 
 package News::Newsrc;
 
+use 5.004;
 use strict;
 use integer;
-use vars qw(@ISA $VERSION);
-use Set::IntSpan 1.03;
+use Set::IntSpan 1.04;
 
-require 5.003;
-require Exporter;
-
-@ISA = qw(Exporter);
-$VERSION = 1.03;
+$News::Newsrc::VERSION = 1.04;
 $Set::IntSpan::Empty_String = '';
 
 
@@ -116,8 +112,7 @@ sub save_as
 
     $newsrc->{file} = $file;
     
-    my $group;
-    for $group (@{$newsrc->{list}})
+    for my $group (@{$newsrc->{list}})
     {
 	my $name     = $group->{name};
 	my $sub      = $group->{subscribed} ? ':' : '!';
@@ -134,10 +129,9 @@ sub save_as
 sub _dump	# Formats a Newsrc object to a string.  Used for testing
 {
     my $newsrc = shift;
-    my($group, $dump);
 
-    $dump = '';
-    for $group (@{$newsrc->{list}})
+    my $dump = '';
+    for my $group (@{$newsrc->{list}})
     {
 	my $name     = $group->{name};
 	my $sub      = $group->{subscribed} ? ':' : '!';
@@ -211,8 +205,7 @@ sub Alpha
     my($list, $group, $before) = @_;
     my $name = $group->{name};
 
-    my $i;
-    for $i (0..$#$list)
+    for my $i (0..$#$list)
     {
 	if ($name lt $list->[$i]{name})
 	{
@@ -230,8 +223,7 @@ sub Before
     my($list, $group, $before) = @_;
     my $name = $group->{name};
 
-    my $i;
-    for $i (0..$#$list)
+    for my $i (0..$#$list)
     {
 	if ($list->[$i]{name} eq $before)
 	{
@@ -249,8 +241,7 @@ sub After
     my($list, $group, $after) = @_;
     my $name = $group->{name};
 
-    my $i;
-    for $i (0..$#$list)
+    for my $i (0..$#$list)
     {
 	if ($list->[$i]{name} eq $after)
 	{
@@ -502,7 +493,7 @@ News::Newsrc - manage newsrc files
 
 =head1 REQUIRES
 
-Perl 5.003, Exporter, Set::IntSpan 1.03
+Perl 5.004, Set::IntSpan 1.04
 
 =head1 EXPORTS
 
@@ -608,36 +599,36 @@ Recognized locations are:
 
 =over 4
 
-=item C<where =E<gt> 'first'>
+=item C<where> => C<'first'>
 
 Put the newsgroup first.
 
-=item C<where =E<gt> 'last'>
+=item C<where> => C<'last'>
 
 Put the newsgroup last.
 
-=item C<where =E<gt> 'alpha'>
+=item C<where> => C<'alpha'>
 
 Put the newsgroup in alphabetical order.
 
 If the other newsgroups are not sorted alphabetically,
 put the group at an arbitrary location.
 
-=item C<where =E<gt> [ before =E<gt>> I<$group> C<]>
+=item C<where> => [ C<before> => I<$group> ]
 
 Put the group immediately before I<$group>.
 
 If I<$group> does not exist, 
 put the group last.
 
-=item C<where =E<gt> [ after =E<gt>> I<$group> C<]>
+=item C<where> => [ C<after> => I<$group> ]
 
 Put the group immediately after I<$group>.
 
 If I<$group> does not exist, 
 put the group last.
 
-=item C<where =E<gt> [ number =E<gt>> I<$n> C<]>
+=item C<where> => [ C<number> => I<$n> ]
 
 Put the group at position I<$n> in the group list.
 Indices are zero-based.
@@ -649,14 +640,14 @@ Negative indices count backwards from the end of the list.
 
 =over 4
 
-=item I<$newsrc> = I<$newsrc> C<= new News::Newsrc>
+=item I<$newsrc> = C<new> C<News::Newsrc>
 
 Creates and returns a C<News::Newsrc> object.
 The object contains no newsgroups.
 
-=item I<$ok> C<=> I<$newsrc>C<-E<gt>load>
+=item I<$ok> = I<$newsrc>->C<load>
 
-=item I<$ok> C<=> I<$newsrc>C<-E<gt>load(>I<$file>C<)>
+=item I<$ok> = I<$newsrc>->C<load>(I<$file>)
 
 Loads the newsgroups in I<$file> into I<$newsrc>.
 If I<$file> is omitted, reads F<$ENV{HOME}/.newsrc>.
@@ -669,7 +660,7 @@ C<load> discards existing data from I<$newsrc> and returns null.
 If I<$file> contains invalid lines, C<load> will C<die>.
 When this happens, the state of I<$newsrc> is undefined.
 
-=item I<$newsrc>C<-E<gt>save>
+=item I<$newsrc>->C<save>
 
 Writes the contents of I<$newsrc> back to the file 
 from which it was C<load>ed. 
@@ -679,7 +670,7 @@ it is renamed to I<file>C<.bak>.
 
 C<save> will C<die> if there is an error writing the file.
 
-=item I<$newsrc>C<-E<gt>save_as(>I<$file>C<)>
+=item I<$newsrc>->C<save_as>(I<$file>)
 
 Writes the contents of I<$newsrc> to I<$file>. 
 If I<$file> exists, it is renamed to I<$file>C<.bak>.
@@ -687,7 +678,7 @@ Subsequent calls to C<save> will write to I<$file>.
 
 C<save_as> will C<die> if there is an error writing the file.
 
-=item I<$ok> C<=> I<$newsrc>C<-E<gt>add_group(>I<$group>C<,> I<%options>C<)>
+=item I<$ok> = I<$newsrc>->C<add_group>(I<$group>, I<%options>)
 
 Adds I<$group> to the list of newsgroups in I<$newsrc>.
 I<$group> is initially subscribed.
@@ -696,27 +687,27 @@ The article list for I<$group> is initially empty.
 By default, 
 I<$group> is added to the end of the list of newsgroups.
 Other locations may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
 By default,
 C<add_group> does nothing if I<$group> already exists.
-If the C<replace =E<gt> 1> option is provided, 
+If the C<replace> => C<1> option is provided, 
 then C<add_group> will delete I<$group> if it exists,
 and then add it.
 
 C<add_group> returns true iff I<$group> was added.
 
-=item I<$ok> C<=> I<$newsrc>C<-E<gt>move_group(>I<$group>C<,> I<%options>C<)>
+=item I<$ok> = I<$newsrc>->C<move_group>(I<$group>, I<%options>)
 
 Changes the position of I<$group> in I<$newsrc>
 according to I<%options>.
-See L<NEWSGROUP ORDER> for details.
+See L<"NEWSGROUP ORDER"> for details.
 
 If I<$group> does not exist,
 C<move_group> does nothing and returns false.
 Otherwise, it returns true.
 
-=item I<$ok> C<=> I<$newsrc>C<-E<gt>del_group(>I<$group>C<)>
+=item I<$ok> = I<$newsrc>->C<del_group>(I<$group>)
 
 If I<$group> exists in I<$newsrc>,
 C<del_group> removes it and returns true.
@@ -725,116 +716,116 @@ The article list for I<$group> is lost.
 If I<$group> does not exist in I<$newsrc>,
 C<del_group> does nothing and returns false.
 
-=item I<$newsrc>C<-E<gt>subscribe(>I<$group>C<,> I<%options>C<)>
+=item I<$newsrc>->C<subscribe>(I<$group>, I<%options>)
 
 Subscribes to I<$group>.  
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>unsubscribe(>I<$group>C<,> I<%options>C<)>
+=item I<$newsrc>->C<unsubscribe>(I<$group>, I<%options>)
 
 Unsubscribes from I<$group>.  
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>mark(>I<$group>C<,> I<$article>C<,> I<%options>C<)>
+=item I<$newsrc>->C<mark>(I<$group>, I<$article>, I<%options>)
 
 Adds I<$article> to the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>mark_list(>I<$group>, \@articlesC<,> I<%options>C<)>
+=item I<$newsrc>->C<mark_list>(I<$group>, I<\@articles>, I<%options>)
 
-Adds @articles to the article list for I<$group>.
+Adds I<@articles> to the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>mark_range(>I<$group>C<,> I<$from>C<,> I<$to>C<,> I<%options>C<)>
+=item I<$newsrc>->C<mark_range>(I<$group>, I<$from>, I<$to>, I<%options>)
 
 Adds all the articles from I<$from> to I<$to>, inclusive, 
 to the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>unmark(>I<$group>C<,> I<$article>C<,> I<%options>C<)>
+=item I<$newsrc>->C<unmark>(I<$group>, I<$article>, I<%options>)
 
 Removes I<$article> from the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>unmark_list(>I<$group>, \@articlesC<,> I<%options>C<)>
+=item I<$newsrc>->C<unmark_list>(I<$group>, I<\@articles>, I<%options>)
 
-Removes @articles from the article list for I<$group>.
+Removes I<@articles> from the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>unmark_range(>I<$group>C<,> I<$from>C<,> I<$to>C<,> I<%options>C<)>
+=item I<$newsrc>->C<unmark_range>(I<$group>, I<$from>, I<$to>, I<%options>)
 
 Removes all the articles from I<$from> to I<$to>, inclusive, 
 from the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$newsrc>C<-E<gt>exists(>I<$group>C<)>
+=item I<$newsrc>->C<exists>(I<$group>)
 
 Returns true iff I<$group> exists in I<$newsrc>.
 
-=item I<$newsrc>C<-E<gt>subscribed(>I<$group>C<)>
+=item I<$newsrc>->C<subscribed>(I<$group>)
 
 Returns true iff I<$group> exists and is subscribed.
 
-=item I<$newsrc>C<-E<gt>marked(>I<$group>C<,> I<$article>C<)>
+=item I<$newsrc>->C<marked>(I<$group>, I<$article>)
 
 Returns true iff I<$group> exists and its article list contains I<$article>.
 
-=item I<$n> C<=> I<$newsrc>C<-E<gt>num_groups>
+=item I<$n> = I<$newsrc>->C<num_groups>
 
 Returns the number of groups in I<$newsrc>.
 
-=item I<@groups> C<=> I<$newsrc>C<-E<gt>groups>
+=item I<@groups> = I<$newsrc>->C<groups>
 
 Returns the list of groups in I<$newsrc>,
 in newsrc order.
 In scalar context, returns an array reference.
 
-=item I<@groups> C<=> I<$newsrc>C<-E<gt>sub_groups>
+=item I<@groups> = I<$newsrc>->C<sub_groups>
 
 Returns the list of subscribed groups in I<$newsrc>,
 in newsrc order.
 In scalar context, returns an array reference.
 
-=item I<@groups> C<=> I<$newsrc>C<-E<gt>unsub_groups>
+=item I<@groups> = I<$newsrc>->C<unsub_groups>
 
 Returns the list of unsubscribed groups in I<$newsrc>,
 in newsrc order.
 In scalar context, returns an array reference.
 
-=item I<@articles> C<=> I<$newsrc>C<-E<gt>marked_articles(>I<$group>C<)>
+=item I<@articles> = I<$newsrc>->C<marked_articles>(I<$group>)
 
 Returns the list of articles in the article list for I<$group>.
 In scalar context, returns an array reference.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<@articles> C<=> I<$newsrc>C<-E<gt>unmarked_articles(>I<$group>C<,> I<$from>C<,> I<$to>C<,> I<%options>C<)>
+=item I<@articles> = I<$newsrc>->C<unmarked_articles>(I<$group>, I<$from>, I<$to>, I<%options>)
 
 Returns the list of articles from I<$from> to I<$to>, inclusive,
 that do B<not> appear in the article list for I<$group>.
@@ -842,35 +833,35 @@ In scalar context, returns an array reference.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-=item I<$articles> C<=> I<$newsrc>C<-E<gt>get_articles(>I<$group>C<,> I<%options>C<)>
+=item I<$articles> = I<$newsrc>->C<get_articles>(I<$group>, I<%options>)
 
 Returns the article list for I<$group> as a string,
-in the format described in L<NEWSRC FILES/Article list>.
+in the format described in L<"NEWSRC FILES">.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
 If you plan to do any nontrivial processing on the article list, 
 consider converting it to a C<Set::IntSpan> object:
 
   $articles = Set::IntSpan->new($newsrc->get_articles('alt.foo'))
 
-=item I<$ok> C<=> I<$newsrc>C<-E<gt>set_articles(>I<$group>C<,> I<$articles>C, >I<%options>C<)>
+=item I<$ok> = I<$newsrc>->C<set_articles>(I<$group>, I<$articles>, I<%options>)
 
 Sets the article list for $group.
 Any existing article list is lost.
 
 I<$articles> is a string, 
-as described in L<NEWSRC FILES/Article list>.
+as described in L<"NEWSRC FILES">.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
-see L<NEWSGROUP ORDER> for details.
+see L<"NEWSGROUP ORDER"> for details.
 
-If I<$articles> does not have the format described in L<NEWSRC FILES/Article list>,
+If I<$articles> does not have the format described in L<"NEWSRC FILES">,
 C<set_articles> does nothing and returns false.
 Otherwise, it returns true.
 
@@ -883,12 +874,12 @@ Otherwise, it returns true.
 =item News::Newsrc::load: Bad newsrc line: $file, line $.: $_
 
 A line in the newsrc file does not have the format described in 
-L<NEWSRC FILES>.
+L<"NEWSRC FILES">.
 
 =item News::Newsrc::load: Bad article list: %file, line $.: $_
 
 The article list for a newsgroup does not have the format described in
-L<NEWSRC FILES/Article list>.
+L<"NEWSRC FILES">.
 
 =item News::Newsrc::save_as: Can't rename $file, $file.bak: $!
 

@@ -1,5 +1,9 @@
 Revision history for Perl extension News::Newsrc
 
+1.04  Thu July 3 1997
+	- runs clean under 5.004
+	- documentation fixes
+
 1.03  Mon March 31 12:00:00 1997
 	- preserve newsgroup order
 	- added move_group()
