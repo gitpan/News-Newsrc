@@ -1,5 +1,8 @@
 Revision history for Perl extension News::Newsrc
 
+1.06  Mon Jan 5 1998
+	- runs clean under Windows NT
+
 1.05  Mon Sept 22 1997
 	- run clean under 5.004_03
 

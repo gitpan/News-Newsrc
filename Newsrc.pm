@@ -1,4 +1,4 @@
-# Copyright (c) 1996, 1997 Steven McDougall. All rights reserved.
+# Copyright (c) 1996-1998 Steven McDougall. All rights reserved.
 # This module is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 
@@ -7,9 +7,9 @@ package News::Newsrc;
 use 5.004;
 use strict;
 use integer;
-use Set::IntSpan 1.04;
+use Set::IntSpan 1.05;
 
-$News::Newsrc::VERSION = 1.05;
+$News::Newsrc::VERSION = 1.06;
 $Set::IntSpan::Empty_String = '';
 
 
@@ -33,6 +33,17 @@ sub load
     $newsrc->{list } = [ ];
     
     open(NEWSRC, $file) or return '';
+    eval { $newsrc->parse($file) };
+    close(NEWSRC);
+
+    die $@ if $@;
+    1
+}
+
+
+sub parse
+{
+    my($newsrc, $file) = @_;
 
     while (<NEWSRC>)
     {
@@ -40,12 +51,12 @@ sub load
 	s/\s//g;
 
 	/^ ([^!:]+) ([!:]) (.*) $/x or 
-	    die "News::Newsrc::load: Bad newsrc line: $file, line $.: $_";
+	    die "News::Newsrc::parse: Bad newsrc line: $file, line $.: $_";
 
 	my($name, $mark, $articles) = ($1, $2, $3);
 	
 	valid Set::IntSpan $articles or 
-	    die "News::Newsrc::load: Bad article list: $file, line $.: $_";
+	    die "News::Newsrc::parse: Bad article list: $file, line $.: $_";
 
 	my $group = { name       => $name,
 		      subscribed => $mark eq ':',
@@ -54,9 +65,6 @@ sub load
 	$newsrc->{group}{$name} = $group;
 	push(@{$newsrc->{list}}, $group);
     }
-    
-    close(NEWSRC);
-    1
 }
 
 
@@ -111,6 +119,15 @@ sub save_as
 	die "News::Newsrc::save_as: Can't open $file: $!\n";
 
     $newsrc->{file} = $file;
+    eval { $newsrc->format($file) };
+    close NEWSRC;
+    die $@ if $@;
+}
+
+
+sub format
+{
+    my($newsrc, $file) = @_;
     
     for my $group (@{$newsrc->{list}})
     {
@@ -119,10 +136,8 @@ sub save_as
 	my $articles = $group->{articles}->run_list;
         $articles = ' ' . $articles if $articles =~ /^\d/;
 	print NEWSRC "$name$sub$articles\n" or 
-	    die "News::Newsrc::save_as: Can't write $file: $!\n";
+	    die "News::Newsrc::format: Can't write $file: $!\n";
     }
-
-    close NEWSRC;	
 }
 
 
@@ -502,7 +517,7 @@ News::Newsrc - manage newsrc files
 
 =head1 REQUIRES
 
-Perl 5.004, Set::IntSpan 1.04
+Perl 5.004, Set::IntSpan 1.05
 
 =head1 EXPORTS
 
@@ -880,12 +895,12 @@ Otherwise, it returns true.
 
 =over 4
 
-=item News::Newsrc::load: Bad newsrc line: $file, line $.: $_
+=item News::Newsrc::parse: Bad newsrc line: $file, line $.: $_
 
 A line in the newsrc file does not have the format described in 
 L<"NEWSRC FILES">.
 
-=item News::Newsrc::load: Bad article list: %file, line $.: $_
+=item News::Newsrc::parse: Bad article list: %file, line $.: $_
 
 The article list for a newsgroup does not have the format described in
 L<"NEWSRC FILES">.
@@ -894,7 +909,7 @@ L<"NEWSRC FILES">.
 
 =item News::Newsrc::save_as: Can't open $file: $!
 
-=item News::Newsrc::save_as: Can't write $file: $!
+=item News::Newsrc::format: Can't write $file: $!
 
 =back
 
@@ -942,7 +957,7 @@ perl(1), Set::IntSpan
 
 =head1 COPYRIGHT
 
-Copyright (c) 1996, 1997 Steven McDougall. All rights reserved.
+Copyright (c) 1996-1998 Steven McDougall. All rights reserved.
 This module is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
 

@@ -1,4 +1,4 @@
-News::Newsrc VERSION 1.04 - manage newsrc files
+News::Newsrc VERSION 1.06 - manage newsrc files
 
 DESCRIPTION
 News::Newsrc manages newsrc files, of the style
@@ -18,13 +18,13 @@ Methods are provided for
 - returning lists of articles
 
 COPYRIGHT
-Copyright (c) 1996, 1997 Steven McDougall.  All rights reserved.  This
+Copyright (c) 1996-1998 Steven McDougall.  All rights reserved.  This
 module is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 PREREQUISITES
 Perl5.004
-Set::IntSpan 1.04
+Set::IntSpan 1.05
 
 HOW TO BUILD AND INSTALL
 perl Makefile.PL
