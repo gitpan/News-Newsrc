@@ -5,3 +5,4 @@ Newsrc.pm
 README
 t/Newsrc.t
 t/fodder
+META.yml                                 Module meta-data (added by MakeMaker)

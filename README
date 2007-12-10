@@ -18,8 +18,8 @@ Methods are provided for
 - returning lists of articles
 
 PREREQUISITES
-Perl5.6.0
-Set::IntSpan 1.07
+Perl5
+Set::IntSpan
 
 HOW TO BUILD AND INSTALL
 perl Makefile.PL
@@ -32,6 +32,6 @@ Nothing planned.
 Send suggestions, bugs, etc. to swmcd@world.std.com
 
 COPYRIGHT
-Copyright 1996-2001 by Steven McDougall. This module is free software;
+Copyright 1996-2007 by Steven McDougall. This module is free software;
 you can redistribute it and/or modify it under the same terms as Perl
 itself.

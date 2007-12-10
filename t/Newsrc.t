@@ -8,7 +8,7 @@
 # Change 1..1 below to 1..last_test_to_print .
 # (It may become useful if the test is moved to ./t subdirectory.)
 
-BEGIN {print "1..120\n";}
+BEGIN {print "1..125\n";}
 END {print "not ok 1\n" unless $loaded;}
 use News::Newsrc;
 $loaded = 1;
@@ -31,6 +31,7 @@ my @Test_files = qw(t/newsrc t/.newsrc t/newsrc.bak t/.newsrc.bak);
 
 $ENV{HOME} = 't';
 
+test_new	 ();
 test_load        ();
 test_load_errs   ();
 test_save        ();
@@ -51,6 +52,23 @@ test_get_articles();
 test_set_articles();
 
 unlink @Test_files;
+
+sub test_new
+{
+    print "#new\n";
+
+    new News::Newsrc;    	 OK;
+    new News::Newsrc "t/fodder"; OK;
+
+    unlink "t/no_file";
+
+    eval { new News::Newsrc "t/no_file" };
+    $@ =~ m(Can't load t/no_file:) or Not; OK;
+
+    my $no_file = new News::Newsrc "t/no_file", create => 1; OK;
+    $no_file->save;
+    new News::Newsrc "t/no_file"; OK;
+}
 
 
 sub test_load
@@ -111,7 +129,7 @@ sub test_save
     $rc->_scan($scan);
     $rc->save();
     my $read = read_file('t/.newsrc');
-    printf("#%-12s %-20s -> %s", "save", $scan, $read);
+    printf("#%-12s %20s -> %s", "save", $scan, $read);
     $scan eq $read or Not; OK;
 }
 

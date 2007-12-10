@@ -1,24 +1,24 @@
-use 5.6.0;
+use 5;
 use strict;
 use integer;
-use Set::IntSpan 1.07;
+use Set::IntSpan;
 
 package News::Newsrc;
 
-$News::Newsrc::VERSION      = 1.08;
+$News::Newsrc::VERSION      = 1.09;
 $Set::IntSpan::Empty_String = '';
 
 
 sub new
 {
-    my ($class, $file) = @_;
+    my ($class, $file, %options) = @_;
 
-    my $newsrc = { group => {}, 
+    my $newsrc = { group => {},
 		   list  => [] };
 
     bless $newsrc, ref $class || $class;
 
-    $newsrc->load($file) or die "Can't load $file: $!\n" if $file;
+    $newsrc->load($file) or $options{create} or die "Can't load $file: $!\n" if $file;
 
     return $newsrc;
 }
@@ -27,17 +27,16 @@ sub new
 sub load
 {
     my($newsrc, $file) = @_;
-    
+
     $file or $file = "$ENV{HOME}/.newsrc";
     $newsrc->{file } = $file;
     $newsrc->{group} = { };
     $newsrc->{list } = [ ];
 
-    
     open(NEWSRC, $file) or return '';
     my $lines = [ <NEWSRC> ];          # whole file
     close(NEWSRC);
-    
+
     eval { $newsrc->import_rc($lines) };
     $@ and die "News::Newsrc::load: file $file: $@";
 
@@ -48,7 +47,7 @@ sub load
 sub _scan    # Initializes a Newsrc object from a string.  Used for testing.
 {
     my($newsrc, $lines) = @_;
-    
+
     my @lines = split /\n/, $lines;
     $newsrc->import_rc(@lines);
 }
@@ -80,12 +79,12 @@ sub parse   # parses a single line from a newsrc file
     $line =~ /\S/ or return;
     $line =~ s/\s//g;
 
-    $line =~ /^ ([^!:]+) ([!:]) (.*) $/x or 
+    $line =~ /^ ([^!:]+) ([!:]) (.*) $/x or
 	die "News::Newsrc::parse: Bad newsrc line: $line";
 
     my($name, $mark, $articles) = ($1, $2, $3);
-    
-    valid Set::IntSpan $articles or 
+
+    valid Set::IntSpan $articles or
 	die "News::Newsrc::parse: Bad article list: $line";
 
     my $group = { name       => $name,
@@ -100,7 +99,7 @@ sub parse   # parses a single line from a newsrc file
 sub save
 {
     my $newsrc = shift;
-    
+
     $newsrc->{file} or $newsrc->{file} = "$ENV{HOME}/.newsrc";
     $newsrc->save_as($newsrc->{file});
 }
@@ -109,12 +108,12 @@ sub save
 sub save_as
 {
     my($newsrc, $file) = @_;
-    
-    -e $file and 
-	(rename($file, "$file.bak") or 
+
+    -e $file and
+	(rename($file, "$file.bak") or
 	 die "News::Newsrc::save_as: Can't rename $file, $file.bak: $!\n");
 
-    open(NEWSRC, "> $file") or 
+    open(NEWSRC, "> $file") or
 	die "News::Newsrc::save_as: Can't open $file: $!\n";
 
     $newsrc->{file} = $file;
@@ -127,14 +126,14 @@ sub save_as
 sub format
 {
     my($newsrc, $file) = @_;
-    
+
     for my $group (@{$newsrc->{list}})
     {
 	my $name     = $group->{name};
 	my $sub      = $group->{subscribed} ? ':' : '!';
 	my $articles = $group->{articles}->run_list;
 	my $space    = $articles ? ' ' : '';
-	print NEWSRC "$name$sub$space$articles\n" or 
+	print NEWSRC "$name$sub$space$articles\n" or
 	    die "News::Newsrc::format: Can't write $file: $!\n";
     }
 }
@@ -150,7 +149,7 @@ sub export_rc
 	  	      my $articles = $group->{articles}->run_list;
 	  	      my $space    = $articles ? ' ' : '';
 	  	      "$name$sub$space$articles\n" }  @{$newsrc->{list}};
-    
+
     wantarray ? @lines : \@lines
 }
 
@@ -182,7 +181,7 @@ sub add_group
 	$options{replace} or return 0;
 	$newsrc->del_group($name);
     }
-    
+
     my $group = { name       => $name,
 		  subscribed => 1,
 		  articles   => Set::IntSpan->new };
@@ -210,6 +209,7 @@ sub Splice(\@$$@)
 {
     my($array, $offset, $length, @list) = @_;
 
+    $offset >  @$array and $offset =  @$array;
     $offset < -@$array and $offset = -@$array;
     splice @$array, $offset, $length, @list;
 }
@@ -274,8 +274,8 @@ sub Before
 }
 
 
-sub After 
-{ 
+sub After
+{
     my($list, $group, $after) = @_;
     my $name = $group->{name};
 
@@ -397,7 +397,7 @@ sub marked
 {
     my($newsrc, $name, $article) = @_;
 
-    $newsrc->exists($name) and 
+    $newsrc->exists($name) and
 	member {  $newsrc->{group}{$name}{articles} } $article
 }
 
@@ -467,7 +467,7 @@ sub get_articles
 sub set_articles
 {
     my($newsrc, $name, $articles, %options) = @_;
-    
+
     valid Set::IntSpan $articles or return 0;
     my $set = new Set::IntSpan $articles;
     finite $set or return 0;
@@ -490,46 +490,47 @@ News::Newsrc - manage newsrc files
 =head1 SYNOPSIS
 
   use News::Newsrc;
-  
+
   $newsrc   = new News::Newsrc;
   $newsrc   = new News::Newsrc $file;
-        
+  $newsrc   = new News::Newsrc $file, create => 1;
+
   $ok       = $newsrc->load;
   $ok       = $newsrc->load             ( $file);
               $newsrc->import_rc        ( @lines);
               $newsrc->import_rc        (\@lines);
-        
+
               $newsrc->save;
               $newsrc->save_as          ($file);
   @lines    = $newsrc->export_rc;
-        
+
   $ok       = $newsrc-> add_group       ($group,             %options);
   $ok       = $newsrc->move_group       ($group,             %options);
   $ok       = $newsrc-> del_group       ($group);
-        
+
               $newsrc->  subscribe      ($group,             %options);
               $newsrc->unsubscribe      ($group,             %options);
-        
+
               $newsrc->mark             ($group,  $article , %options);
               $newsrc->mark_list        ($group, \@articles, %options);
               $newsrc->mark_range       ($group, $from, $to, %options);
-        
+
               $newsrc->unmark           ($group,  $article , %options);
               $newsrc->unmark_list      ($group, \@articles, %options);
               $newsrc->unmark_range     ($group, $from, $to, %options);
-  
+
        ... if $newsrc->exists           ($group);
        ... if $newsrc->subscribed       ($group);
        ... if $newsrc->marked           ($group, $article);
-  
+
   $n        = $newsrc->  num_groups;
   @groups   = $newsrc->      groups;
   @groups   = $newsrc->  sub_groups;
   @groups   = $newsrc->unsub_groups;
-  
+
   @articles = $newsrc->  marked_articles($group,             %options);
   @articles = $newsrc->unmarked_articles($group, $from, $to, %options);
-  
+
   $articles = $newsrc->get_articles     ($group,             %options);
   $ok       = $newsrc->set_articles     ($group, $articles,  %options);
 
@@ -598,7 +599,7 @@ returning lists of articles
 
 A newsrc file is an ASCII file that lists newsgroups and article numbers.
 Each line of a newsrc file describes a single newsgroup.
-Each line is divided into three fields: 
+Each line is divided into three fields:
 a I<group>, a I<subscription mark> and an I<article list>.
 
 Lines containing only whitespace are ignored.
@@ -624,7 +625,7 @@ The subscription mark is required.
 
 The I<article list> is a comma-separated list of positive integers.
 The integers must be listed in increasing order.
-Runs of consecutive integers may be abbreviated a-b, 
+Runs of consecutive integers may be abbreviated a-b,
 where a is the first integer in the run and b is the last.
 The article list may be empty.
 
@@ -634,11 +635,11 @@ The article list may be empty.
 =head1 NEWSGROUP ORDER
 
 C<News::Newsrc> preserves the order of newsgroups in a newsrc file:
-if a file is loaded and then saved, 
+if a file is loaded and then saved,
 the newsgroup order will be unchanged.
 
 Methods that add or move newsgroups affect the newsgroup order.
-By default, 
+By default,
 these methods put newsgroups at the end of the newsrc file.
 Other locations may be specified by passing an I<%options> hash
 with a C<where> key to the method.
@@ -665,14 +666,14 @@ put the group at an arbitrary location.
 
 Put the group immediately before I<$group>.
 
-If I<$group> does not exist, 
+If I<$group> does not exist,
 put the group last.
 
 =item C<where> => [ C<after> => I<$group> ]
 
 Put the group immediately after I<$group>.
 
-If I<$group> does not exist, 
+If I<$group> does not exist,
 put the group last.
 
 =item C<where> => [ C<number> => I<$n> ]
@@ -691,13 +692,21 @@ Negative indices count backwards from the end of the list.
 
 =item I<$newsrc> = C<new> C<News::Newsrc>
 
-=item I<$newsrc> = C<new> C<News::Newsrc> I<$file>
+=item I<$newsrc> = C<new> C<News::Newsrc> I<$file>, I<%options>
 
-Creates and returns a C<News::Newsrc> object. 
+Creates and returns a C<News::Newsrc> object.
 
-If I<$file> is specified, 
+If I<$file> is specified,
 C<new> loads the newsgroups in I<$file> into the object.
-If the load fails, C<new> C<die>s.
+Subsequent calls to C<save> will write to I<$file>.
+
+If I<$file> exists and the load fails, C<new> C<die>s.
+
+If I<$file> doesn't exist and the C<< create => 1 >> option is supplied in I<%options>,
+then C<new> doesn't load any newsgroups.
+
+If I<$file> doesn't exist and the C<< create => 1 >> option is not supplied in I<%options>,
+then C<new> dies.
 
 
 =item I<$ok> = I<$newsrc>->C<load>
@@ -733,10 +742,10 @@ C<import_rc> accepts either an array or an array reference.
 
 =item I<$newsrc>->C<save>
 
-Writes the contents of I<$newsrc> back to the file 
-from which it was C<load>ed. 
+Writes the contents of I<$newsrc> back to the file
+from which it was C<load>ed.
 If C<load> has not been called, writes to F<$ENV{HOME}/.newsrc>.
-In either case, if the destination I<file> exists, 
+In either case, if the destination I<file> exists,
 it is renamed to I<file>C<.bak>.
 
 C<save> will C<die> if there is an error writing the file.
@@ -744,7 +753,7 @@ C<save> will C<die> if there is an error writing the file.
 
 =item I<$newsrc>->C<save_as>(I<$file>)
 
-Writes the contents of I<$newsrc> to I<$file>. 
+Writes the contents of I<$newsrc> to I<$file>.
 If I<$file> exists, it is renamed to I<$file>C<.bak>.
 Subsequent calls to C<save> will write to I<$file>.
 
@@ -766,14 +775,14 @@ Adds I<$group> to the list of newsgroups in I<$newsrc>.
 I<$group> is initially subscribed.
 The article list for I<$group> is initially empty.
 
-By default, 
+By default,
 I<$group> is added to the end of the list of newsgroups.
 Other locations may be specified in I<%options>;
 see L<"NEWSGROUP ORDER"> for details.
 
 By default,
 C<add_group> does nothing if I<$group> already exists.
-If the C<replace> => C<1> option is provided, 
+If the C<replace> => C<1> option is provided,
 then C<add_group> will delete I<$group> if it exists,
 and then add it.
 
@@ -803,7 +812,7 @@ C<del_group> does nothing and returns false.
 
 =item I<$newsrc>->C<subscribe>(I<$group>, I<%options>)
 
-Subscribes to I<$group>.  
+Subscribes to I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
@@ -812,7 +821,7 @@ see L<"NEWSGROUP ORDER"> for details.
 
 =item I<$newsrc>->C<unsubscribe>(I<$group>, I<%options>)
 
-Unsubscribes from I<$group>.  
+Unsubscribes from I<$group>.
 
 I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
@@ -839,7 +848,7 @@ see L<"NEWSGROUP ORDER"> for details.
 
 =item I<$newsrc>->C<mark_range>(I<$group>, I<$from>, I<$to>, I<%options>)
 
-Adds all the articles from I<$from> to I<$to>, inclusive, 
+Adds all the articles from I<$from> to I<$to>, inclusive,
 to the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
@@ -867,7 +876,7 @@ see L<"NEWSGROUP ORDER"> for details.
 
 =item I<$newsrc>->C<unmark_range>(I<$group>, I<$from>, I<$to>, I<%options>)
 
-Removes all the articles from I<$from> to I<$to>, inclusive, 
+Removes all the articles from I<$from> to I<$to>, inclusive,
 from the article list for I<$group>.
 
 I<$group> will be created if it does not exist.
@@ -946,7 +955,7 @@ I<$group> will be created if it does not exist.
 Its location may be specified in I<%options>;
 see L<"NEWSGROUP ORDER"> for details.
 
-If you plan to do any nontrivial processing on the article list, 
+If you plan to do any nontrivial processing on the article list,
 consider converting it to a C<Set::IntSpan> object:
 
   $articles = Set::IntSpan->new($newsrc->get_articles('alt.foo'))
@@ -957,7 +966,7 @@ consider converting it to a C<Set::IntSpan> object:
 Sets the article list for $group.
 Any existing article list is lost.
 
-I<$articles> is a string, 
+I<$articles> is a string,
 as described in L<"NEWSRC FILES">.
 
 I<$group> will be created if it does not exist.
@@ -978,7 +987,7 @@ Otherwise, it returns true.
 
 =item Bad newsrc line
 
-A line in the newsrc file does not have the format described in 
+A line in the newsrc file does not have the format described in
 L<"NEWSRC FILES">.
 
 
@@ -1006,7 +1015,7 @@ L<"NEWSRC FILES">.
 
 "Don't test for errors that you can't handle."
 
-C<load> returns null if it can't open the newsrc file, 
+C<load> returns null if it can't open the newsrc file,
 and dies if the newsrc file contains invalid data.
 This isn't as schizophrenic as it seems.
 
@@ -1015,11 +1024,11 @@ It could prompt the user to reenter the file name.
 It could assume that the user doesn't have a newsrc file yet.
 If it doesn't want to handle the error, it could go ahead and die.
 
-On the other hand, 
-it is very difficult for a program to do anything sensible 
-if the newsrc file opens successfully 
+On the other hand,
+it is very difficult for a program to do anything sensible
+if the newsrc file opens successfully
 and then turns out to contain invalid data.
-Was there a disk error?  
+Was there a disk error?
 Is the file corrupt?
 Did the user accidentally specify his kill file instead of his newsrc file?
 And what are you going to do about it?
@@ -1029,7 +1038,7 @@ it's probably better to die and let the user sort things out.
 By the same rational,
 C<save> and C<save_as> die on failure.
 
-Programs that must retain control can use eval{...} 
+Programs that must retain control can use eval{...}
 to protect calls that may die.
 For example, Perl/Tk runs all callbacks inside an eval{...}.
 If a callback dies,
@@ -1040,12 +1049,12 @@ The user can then decide whether to continue or quit from the program.
 =head2 C<import_rc>/C<export_rc>
 
 I was going to call these methods C<import> and C<export>,
-but C<import> turns out not to be a good name for a method, 
-because C<use> also calls C<import>, 
+but C<import> turns out not to be a good name for a method,
+because C<use> also calls C<import>,
 and expects different semantics.
 
 I added the C<_rc> suffix to C<import> to avoid this conflict.
-It's reasonably short and somewhat mnemonic 
+It's reasonably short and somewhat mnemonic
 (the module manages newsI<rc> files).
 I added the same suffix to C<export> for symmetry.
 
@@ -1121,7 +1130,7 @@ perl(1), Set::IntSpan
 
 =head1 COPYRIGHT
 
-Copyright 1996-2001 by Steven McDougall. This module is free
+Copyright 1996-2007 by Steven McDougall. This module is free
 software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
 
