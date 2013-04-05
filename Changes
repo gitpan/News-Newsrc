@@ -1,5 +1,8 @@
 Revision history for Perl extension News::Newsrc
 
+1.10  2013 Apr 04
+	- no use integer
+
 1.09  2007 Dec 09
         - added create => 1 option to new()
 	- dropped dependencies on specific versions of Perl and Set::IntSpan

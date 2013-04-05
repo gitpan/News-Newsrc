@@ -1,11 +1,10 @@
-use 5;
-use strict;
-use integer;
-use Set::IntSpan;
-
 package News::Newsrc;
 
-$News::Newsrc::VERSION      = 1.09;
+use 5;
+use strict;
+use Set::IntSpan;
+
+$News::Newsrc::VERSION      = '1.10';
 $Set::IntSpan::Empty_String = '';
 
 
@@ -537,7 +536,7 @@ News::Newsrc - manage newsrc files
 
 =head1 REQUIRES
 
-Perl 5.6.0, Set::IntSpan 1.07
+Perl 5.6.0, Set::IntSpan 1.17
 
 
 =head1 EXPORTS
@@ -1059,6 +1058,25 @@ It's reasonably short and somewhat mnemonic
 I added the same suffix to C<export> for symmetry.
 
 
+=head2 use integer
+
+Up until version 1.09, C<News::Newsrc> specified C<use integer>.
+As of 2012, users are reporting newsgroups with article numbers above
+0x7fffffff, which break the underlying C<Set::IntSpan> module on 32-bit processors.
+
+Version 1.10 removes the C<use integer> from C<News::Newsrc>.
+This extends the usable range of C<Set::IntSpan> to (typically) 9e15,
+which ought to be enough, even for usenet.
+
+If you want C<use integer> back, either for performance,
+or because you are somehow dependent on its semantics, write
+
+  BEGIN { $Set::IntSpan::integer = 1 }
+  use News::Newsrc;
+
+See C<Set::IntSpan> for more information.
+
+
 =head1 ACKNOWLEDGMENTS
 
 =over 4
@@ -1101,6 +1119,10 @@ Lars Balker Rasmussen <gnort@daimi.aau.dk>
 
 =item *
 
+Nicholas Redgrave <baron@bologrew.net>
+
+=item *
+
 Mike Stok <mike@stok.co.uk>
 
 =item *
@@ -1130,7 +1152,7 @@ perl(1), Set::IntSpan
 
 =head1 COPYRIGHT
 
-Copyright 1996-2007 by Steven McDougall. This module is free
+Copyright 1996-2013 by Steven McDougall. This module is free
 software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
 
