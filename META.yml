@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               News-Newsrc
-version:            1.10
+version:            1.11
 abstract:           Manages newsrc files
 author:
     - Steven McDougall (swmcd@world.std.com)

@@ -1,6 +1,7 @@
 # -*- perl -*-
 
 use strict;
+use Config;
 
 BEGIN { $Set::IntSpan::integer = 1 }
 use News::Newsrc 1.10;
@@ -19,4 +20,11 @@ for my $i (0..100)
     mark $rc 'a', 2e12+$i;
 }
 
-$rc->get_articles('a') eq '1000000000100' or Not; OK 'no integer';
+if ($Config{ivsize}==4)
+{
+    $rc->get_articles('a') eq '1000000000100' or Not; OK 'no integer';
+}
+else
+{
+    OK '# SKIP not a 32-bit platform';
+}

@@ -4,7 +4,7 @@ use 5;
 use strict;
 use Set::IntSpan;
 
-$News::Newsrc::VERSION      = '1.10';
+$News::Newsrc::VERSION      = '1.11';
 $Set::IntSpan::Empty_String = '';
 
 
